@@ -16,16 +16,26 @@ const userSchema = new mongoose.Schema({
         min: 6,
         max: 32
     },
+    first_name: {
+        type: String
+    },
+    last_name: {
+        type: String
+    },
     password: {
         type: String,
         required: true,
         min: 6
     },
-    activities: {
+    activities: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Activity'
-    },
+    }],
     created_at: {
+        type: Date,
+        default: Date.now
+    },
+    updated_at: {
         type: Date,
         default: Date.now
     },
