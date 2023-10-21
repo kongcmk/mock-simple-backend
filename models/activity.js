@@ -22,7 +22,8 @@ const activitySchema = new mongoose.Schema({
         default: new Date()
     },
     image_url: {
-        type: String
+        type: String,
+        default: ""
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,

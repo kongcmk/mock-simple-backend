@@ -4,6 +4,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+
+
 require("dotenv").config();
 require("./configs/passport"); // Import 'passport' configuration
 
@@ -27,12 +29,21 @@ const connectToDatabase = async () => {
 // Use the function to connect to the database
 connectToDatabase();
 
+const allowedMethods = ['GET' , 'PUT' , 'POST', 'DELETE'];
+const allowedHeaders = ['Authorization' , 'Content-Type'];
+
+app.use(cors({
+    origin : 'http://localhost:5173',
+    methods: allowedMethods.join(', '),
+    allowedHeaders : allowedHeaders.join(', '),
+    credentials: true,
+}));
 // Middleware
 app.use(morgan("tiny"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
+
 
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
