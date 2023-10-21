@@ -34,6 +34,27 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+  res.setHeader('Expires', new Date(Date.now() + 3600000).toUTCString()); // Cache for 1 hour
+  next();
+});
+
+
+
+const register = require("./routes/registerRoutes.js");
+const login = require("./routes/loginRoutes.js");
+const user = require("./routes/userRoutes.js");
+const activity = require("./routes/activityRoutes.js");
+
+
+app.use("/register", register);
+app.use("/login", login);
+app.use("/user", user);
+// Activity routes
+app.use("/activity", activity);
+
+
 // Error Handler
 app.use((err, req, res, next) => {
   let statusCode = err.status || 500;
@@ -46,17 +67,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-const register = require("./routes/registerRoutes.js");
-const login = require("./routes/loginRoutes.js");
-const user = require("./routes/userRoutes.js");
-const activity = require("./routes/activityRoutes.js");
-
-app.use("/register", register);
-app.use("/login", login);
-app.use("/user", user);
-// Activity routes
-app.use("/activity", activity);
 
 app.listen(PORT, () =>
   console.log(`Server is running on http://localhost:${PORT}`)

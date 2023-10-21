@@ -13,6 +13,10 @@ exports.login = async (req, res, next) => {
             return res.status(401).json({ error: 'Username not found' });
         }
 
+        if (user.deactivated === true) { // Check if user.deactivated is equal to true
+            throw res.status(401).json({ error: 'User was deleted' });
+        }
+
         // Compare the provided password with the hashed password stored in the database
         const passwordMatch = await bcrypt.compare(password, user.password);
 

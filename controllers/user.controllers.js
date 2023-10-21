@@ -1,5 +1,5 @@
 const User = require("../models/user")
-
+const bcrypt = require("bcrypt")
 
 //GET users listing
 exports.getUsers = async (req, res, next) => {
@@ -43,9 +43,61 @@ exports.editUser = async (req, res, next) => {
             
         }
 
-        res.status(201).json(updatedUser);
+        // Define the schema order
+        res.status(201).json({ message: 'User data updated successfully', updatedUser });
     } catch (error) {
         console.error('Update user account error:', error);
         res.status(500).json({ error: 'Update User Account Error' });
+    }
+}
+
+
+//PUT new password
+exports.editPassword = async (req, res, next) => {
+    try {
+        const reqDataUpdate = req.body;
+        const userId = req.user.id; // Assuming you have stored the user's ID in the token payload
+        const currentPassword = reqDataUpdate.currentPassword;
+        const newPassword = reqDataUpdate.newPassword;
+        const renewPassword = reqDataUpdate.renewPassword;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User data not found' });
+        }
+
+        // Compare the current password with the hashed password in the database
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Incorrect current password' });
+        }
+
+        // Check if the new password and renew password match
+        if (newPassword !== renewPassword) {
+            return res.status(400).json({ message: 'New password and renew password do not match' });
+        }
+
+        // Hash the new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password and set the updated_at field
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    password: hashedNewPassword,
+                    updated_at: new Date(),
+                },
+            },
+            { new: true }
+        );
+
+        res.status(200).json({ message: 'Password updated successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Update password error:', error);
+        res.status(500).json({ error: 'Password update error' });
     }
 }
